@@ -1,0 +1,153 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdbool.h>
+
+/**
+ * Auto-generated code below aims at helping you parse
+ * the standard input according to the problem statement.
+ **/
+
+int ft_distance(int r_bad, int c_bad, int r_good, int c_good)
+{
+    int rows = 0;
+    int columns = 0;
+
+    rows = r_bad - r_good;
+    if (rows < 0)
+        rows *= -1;
+    columns = c_bad - c_good;
+    if (columns < 0)
+        columns *= -1;
+    return (rows + columns);
+}
+
+int main()
+{
+    //VARIABLES DEL JUEGO
+    int width;
+    int height;
+    int my_matter;
+    int opp_matter;
+    int scrap_amount;
+    int owner;
+    int units;
+    int recycler;
+    int can_build;
+    int can_spawn;
+    int in_range_of_recycler;
+
+    //VARIABLES PROPIAS
+    int *column_good_robots;
+    int *row_good_robots;
+    int index_good = 0;
+    int i_good = 0;
+    int *column_bad_robots;
+    int *row_bad_robots;
+    int index_bad = 0;
+    int i_bad = 0;
+    int distance = 1000;
+    int i_prox = -1;
+    int count_good_robots;
+    int count_bad_robots;
+    int c = 0;
+    int r = 0;
+
+    scanf("%d%d", &width, &height);
+
+    column_good_robots = malloc ((width * height) * sizeof (*column_good_robots));
+    if (!column_good_robots)
+        exit (EXIT_FAILURE);
+    row_good_robots = malloc ((width * height) * sizeof (*row_good_robots));
+    if (!row_good_robots)
+        exit (EXIT_FAILURE);
+    column_bad_robots = malloc ((width * height) * sizeof (*column_good_robots));
+    if (!column_good_robots)
+        exit (EXIT_FAILURE);
+    row_bad_robots = malloc ((width * height) * sizeof (*row_good_robots));
+    if (!row_good_robots)
+        exit (EXIT_FAILURE);
+    
+
+    // game loop
+    while (1) {
+        
+        scanf("%d%d", &my_matter, &opp_matter);
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {                
+                scanf("%d%d%d%d%d%d%d", &scrap_amount, &owner, &units, &recycler, &can_build, &can_spawn, &in_range_of_recycler);
+                if (owner == 1 && units > 0)
+                {
+                    column_good_robots[index_good] = j;
+                    row_good_robots[index_good] = i;
+                    index_good++;
+                }
+                else if (owner == 0 && units > 0)
+                {
+                    column_bad_robots[index_bad] = j;
+                    row_bad_robots[index_bad] = i;
+                    index_bad++;
+                }
+            }
+        }
+
+        i_good = 0;
+        while (i_good <= index_good)
+        {
+            i_bad = 0;
+            while (i_bad < index_bad)
+            {
+                if (ft_distance(row_bad_robots[i_bad], column_bad_robots[i_bad], row_good_robots[i_good], column_good_robots[i_good]) < distance)
+                {
+                    i_prox = i_bad;
+                    distance = ft_distance(row_bad_robots[i_bad], column_bad_robots[i_bad], row_good_robots[i_good], column_good_robots[i_good]);
+                }
+                i_bad++;
+            }
+            printf("MOVE 1 %i %i %i %i;", column_good_robots[i_good], row_good_robots[i_good], column_bad_robots[i_prox], row_bad_robots[i_prox]);
+            distance = 1000;
+            i_prox = -1;
+            i_good++;
+        }
+        index_good = 0;
+        index_bad = 0;
+        printf("\n");
+        
+    }
+
+    return 0;
+}
+
+/*int main()
+{
+    int width;
+    int height;
+    scanf("%d%d", &width, &height);
+
+    // game loop
+    while (1) {
+        int my_matter;
+        int opp_matter;
+        scanf("%d%d", &my_matter, &opp_matter);
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                int scrap_amount;
+                // 1 = me, 0 = foe, -1 = neutral
+                int owner;
+                int units;
+                int recycler;
+                int can_build;
+                int can_spawn;
+                int in_range_of_recycler;
+                scanf("%d%d%d%d%d%d%d", &scrap_amount, &owner, &units, &recycler, &can_build, &can_spawn, &in_range_of_recycler);
+            }
+        }
+
+        // Write an action using printf(). DON'T FORGET THE TRAILING \n
+        // To debug: fprintf(stderr, "Debug messages...\n");
+
+        printf("WAIT\n");
+    }
+
+    return 0;
+}*/
