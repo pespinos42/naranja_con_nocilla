@@ -1,0 +1,154 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdbool.h>
+
+/**
+ * Auto-generated code below aims at helping you parse
+ * the standard input according to the problem statement.
+ **/
+
+typedef struct s_good_robots
+{
+    int     current_column;
+    int     current_row;
+    int     future_column;
+    int     future_row;
+    char    work;
+}   t_good_robots;
+
+int ft_distance(int r_bad, int c_bad, int r_good, int c_good)
+{
+    int rows = 0;
+    int columns = 0;
+
+    rows = r_bad - r_good;
+    if (rows < 0)
+        rows *= -1;
+    columns = c_bad - c_good;
+    if (columns < 0)
+        columns *= -1;
+    return (rows + columns);
+}
+
+int ft_count_robots(int ***map, int width, int height, int deep)
+{
+    int r = 0;
+    int c = 0;
+    int d = 0;
+    int count = 0;
+
+    while (r < height)
+    {
+        c = 0;
+        while (c < width)
+        {
+            if (map[r][c][3] == 1 && map[r][c][4] > 0)
+                count++;
+            c++;
+        }
+        r++;
+    }
+    return (count);
+}
+
+int ***ft_create_map(int width, int height, int deep)
+{
+    int ***map;
+    int r = 0;
+    int c = 0;
+
+    map = malloc (height * sizeof (int**));
+    while (r < height)
+    {
+        map[r] = malloc (width * sizeof (int *));
+        while (c < width)
+        {
+            map[r][c++] = malloc (deep * sizeof (int));
+        }
+        c = 0;
+        r++;
+    }
+    return (map);
+}
+
+int main()
+{
+    int width;
+    int height;
+    int deep = 9;
+    scanf("%d%d", &width, &height);
+    int ***map;
+    map = ft_create_map(width, height, deep);
+
+    // game loop
+    while (1) {
+        int my_matter;
+        int opp_matter;
+        scanf("%d%d", &my_matter, &opp_matter);
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                int scrap_amount;
+                // 1 = me, 0 = foe, -1 = neutral
+                int owner;
+                int units;
+                int recycler;
+                int can_build;
+                int can_spawn;
+                int in_range_of_recycler;
+                scanf("%d%d%d%d%d%d%d", &scrap_amount, &owner, &units, &recycler, &can_build, &can_spawn, &in_range_of_recycler);
+                map[i][j][0] = my_matter;
+                map[i][j][1] = opp_matter;
+                map[i][j][2] = scrap_amount;
+                map[i][j][3] = owner;
+                map[i][j][4] = units;
+                map[i][j][5] = recycler;
+                map[i][j][6] = can_build;
+                map[i][j][7] = can_spawn;
+                map[i][j][8] = in_range_of_recycler;
+            }
+        }
+
+        // Write an action using printf(). DON'T FORGET THE TRAILING \n
+        // To debug: fprintf(stderr, "Debug messages...\n");
+        
+        fprintf(stderr, "NUMERO DE ROBOTS BUENOS -> %i\n", ft_count_robots(map, width, height, deep));
+        printf("WAIT\n");
+    }
+
+    return 0;
+}
+//---------------------------------------------------------------MAIN ORIGINAL-----------------------------------------------------
+/*int main()
+{
+    int width;
+    int height;
+    scanf("%d%d", &width, &height);
+
+    // game loop
+    while (1) {
+        int my_matter;
+        int opp_matter;
+        scanf("%d%d", &my_matter, &opp_matter);
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                int scrap_amount;
+                // 1 = me, 0 = foe, -1 = neutral
+                int owner;
+                int units;
+                int recycler;
+                int can_build;
+                int can_spawn;
+                int in_range_of_recycler;
+                scanf("%d%d%d%d%d%d%d", &scrap_amount, &owner, &units, &recycler, &can_build, &can_spawn, &in_range_of_recycler);
+            }
+        }
+
+        // Write an action using printf(). DON'T FORGET THE TRAILING \n
+        // To debug: fprintf(stderr, "Debug messages...\n");
+
+        printf("WAIT\n");
+    }
+
+    return 0;
+}*/
