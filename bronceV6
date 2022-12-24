@@ -1,0 +1,237 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdbool.h>
+
+/**
+ * Auto-generated code below aims at helping you parse
+ * the standard input according to the problem statement.
+ **/
+
+ typedef struct s_good_robots
+{
+    int     current_column;
+    int     current_row;
+    int     future_column;
+    int     future_row;
+}   t_good_robots;
+
+typedef struct s_bad_robots
+{
+    int     current_column;
+    int     current_row;
+}   t_bad_robots;
+
+void    ft_locate_robots(int ***map, int width, int height, t_good_robots *my_robots, t_bad_robots *other_robots)
+{
+
+    int r = 0;
+    int c = 0;
+    int i_good_robots = 0;
+    int i_g_r = 0;
+    int i_other_robots = 0;
+
+    while (r < height)
+    {
+        while (c < width)
+        {
+            if (map[r][c][1] == 1 && map[r][c][2] > 0)
+            {
+                while (i_g_r < map[r][c][2])
+                {
+                    my_robots[i_good_robots].current_column = c;
+                    my_robots[i_good_robots].current_row = r;
+                    i_good_robots++;
+                    i_g_r++;
+                }
+                i_g_r = 0;
+            }
+            else if (map[r][c][1] == 0 && map[r][c][2] > 0)
+            {
+                other_robots[i_other_robots].current_column = c;
+                other_robots[i_other_robots].current_row = r;
+                i_other_robots++;
+            }
+            c++;
+        }
+        c = 0;
+        r++;
+    }
+}
+
+int     ***ft_create_map(int width, int height, int deep)
+{
+    int ***map;
+    int r = 0;
+    int c = 0;
+
+    map = malloc (height * sizeof (int**));
+    while (r < height)
+    {
+        map[r] = malloc (width * sizeof (int *));
+        while (c < width)
+        {
+            map[r][c++] = malloc (deep * sizeof (int));
+        }
+        c = 0;
+        r++;
+    }
+    return (map);
+}
+
+int     ft_distance(int r_bad, int c_bad, int r_good, int c_good)
+{
+    int rows = 0;
+    int columns = 0;
+
+    rows = r_bad - r_good;
+    if (rows < 0)
+        rows *= -1;
+    columns = c_bad - c_good;
+    if (columns < 0)
+        columns *= -1;
+    return (rows + columns);
+}
+
+int ft_check_range_one(t_good_robots *my_robot, t_bad_robots *other_robots, int count_bad_robots)
+{
+    int in_range = 0;
+    int i_bad_robot = 0;
+
+    while (i_bad_robot < count_bad_robots && in_range == 0)
+    {
+        if (ft_distance(other_robots[i_bad_robot].current_row, other_robots[i_bad_robot].current_column, my_robot->current_row, my_robot->current_column) == 1)
+        {
+            my_robot->future_column = other_robots[i_bad_robot].current_column;
+            my_robot->future_row = other_robots[i_bad_robot].current_row;
+            in_range = 1;
+        }
+        i_bad_robot++;
+    }
+    return (in_range);
+}
+
+void ft_check_box(t_good_robots *my_robot, int width, int height, int ***map)
+{
+    int r = 0;
+    int c = 0;
+    int distance = 1000;
+
+    while (r < height)
+    {
+        while (c < width)
+        {
+            if (map[r][c][1] != 1  && map[r][c][2] == 0 && map[r][c][0] > 0)
+            {
+                if (ft_distance(r, c, my_robot->current_row, my_robot->current_column) < distance)
+                {
+                    distance = ft_distance(r, c, my_robot->current_row, my_robot->current_column);
+                    my_robot->future_row = r;
+                    my_robot->future_column = c;
+                }
+            }
+            c++;
+        }
+        c = 0;
+        r++;
+    }
+}
+
+void ft_future_position(t_good_robots *my_robots, t_bad_robots *other_robots, int count_good_robots, int count_bad_robots, int width, int height, int ***map)
+{
+    int distance = 0;
+    int index_good = 0;
+    int op = 0;
+
+    while (index_good < count_good_robots)
+    {
+        op = ft_check_range_one(&my_robots[index_good], other_robots, count_bad_robots);
+        if (op == 0)
+        {
+            ft_check_box(&my_robots[index_good], width, height, map);
+        }
+        printf("MOVE 1 %d %d %d %d;", my_robots[index_good].current_column, my_robots[index_good].current_row, my_robots[index_good].future_column, my_robots[index_good].future_row);
+        index_good++;            
+    }
+}
+
+int main()
+{
+    int width;
+    int height;
+    scanf("%d%d", &width, &height);
+
+    int             ***map;
+    int             deep;
+    int             count_my_robots;
+    int             count_other_robots;
+    t_good_robots   *my_robots;
+    t_bad_robots    *other_robots;
+    int row_build = 0;
+    int col_build = 0;
+    int row_spawn = 0;
+    int col_spawn = 0;
+    int material = 0;
+
+    count_my_robots = 0;
+    count_other_robots = 0;
+    deep = 7;
+    map = ft_create_map(width, height, deep);
+
+    // game loop
+    while (1) {
+        int my_matter;
+        int opp_matter;
+        count_my_robots = 0;
+        count_other_robots = 0;
+        material = 0;
+        scanf("%d%d", &my_matter, &opp_matter);
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                int scrap_amount;
+                // 1 = me, 0 = foe, -1 = neutral
+                int owner;
+                int units;
+                int recycler;
+                int can_build;
+                int can_spawn;
+                int in_range_of_recycler;
+                scanf("%d%d%d%d%d%d%d", &scrap_amount, &owner, &units, &recycler, &can_build, &can_spawn, &in_range_of_recycler);
+                map[i][j][0] = scrap_amount;
+                map[i][j][1] = owner;
+                map[i][j][2] = units;
+                map[i][j][3] = recycler;
+                map[i][j][4] = can_build;
+                map[i][j][5] = can_spawn;
+                map[i][j][6] = in_range_of_recycler;
+                if (owner == 1 && units > 0)
+                    count_my_robots += units;
+                else if (owner == 0 && units > 0)
+                    count_other_robots += units;
+                if (scrap_amount > material && owner == 1)
+                {
+                    col_build = j;
+                    row_build = i;
+                }
+            }
+        }
+
+        // Write an action using printf(). DON'T FORGET THE TRAILING \n
+        // To debug: fprintf(stderr, "Debug messages...\n");
+        my_robots = malloc (count_my_robots * sizeof (*my_robots));
+        other_robots = malloc (count_other_robots * sizeof (*other_robots));
+        ft_locate_robots(map, width, height, my_robots, other_robots);
+        ft_future_position(my_robots, other_robots, count_my_robots, count_other_robots, width, height, map);
+
+        if (my_matter > 20)
+            printf("BUILD %i %i;", col_build, row_build);
+        printf("SPAWN %i %i %i;", my_matter % 10, my_robots[count_my_robots-1].current_column, my_robots[count_my_robots-1].current_row);
+
+        //printf("WAIT\n");
+        printf("\n");
+        free (my_robots);
+        free (other_robots);
+    }
+
+    return 0;
+}
